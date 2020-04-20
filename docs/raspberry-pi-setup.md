@@ -44,3 +44,41 @@ sudo reboot
 ```
 
 With the serial console disabled, the UART serial port could be accessed via /dev/ttyAMA0
+
+## I2C
+
+```
+sudo nano /etc/modprobe.d/raspi-blacklist.conf
+```
+
+```
+# blcklist spi and i2c by default (many users don't need them)
+
+blacklist spi-bcm2708
+blacklist i2c-bcm2708
+```
+
+```
+sudo nano /etc/modules
+```
+
+```
+# /etc/modules: kernel modules to load at boot time.
+#
+# This file contains the names of kernel modules that should be loaded
+# at boot time, one per line. Lines beginning with "#" are ignored.
+# Parameters can be specified after the module name.
+
+i2c-dev
+```
+
+```
+sudo apt install i2c-tools
+sudo apt install python-smbus
+sudo adduser pi i2c
+sudo reboot
+```
+
+```
+i2cdetect -y <i2c_ch>
+```
