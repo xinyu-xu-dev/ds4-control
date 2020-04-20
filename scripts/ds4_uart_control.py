@@ -431,13 +431,13 @@ def get_button_right(compas_pad_value):
         return False
 
 def get_all_input():
-    prevTime = time.time
+    prev_time = time.time()
     while 1:
         received_message = read_serial_comm()
-        currentTime = time.time()
-        readUpdateTime = currentTime - prevTime
-        prevTime = currentTime
-        print("Update time is {:05.02f} ".format(readUpdateTime))
+        current_time = time.time()
+        read_update_time = current_time - prev_time
+        prev_time = current_time
+        print("Update time is {:05.02f} ".format(read_update_time))
         get_joystick_left_X(received_message)
         get_joystick_left_Y(received_message)
         get_joystick_right_X(received_message)
