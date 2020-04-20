@@ -5,8 +5,8 @@ import serial
 import ds4_uart_config as config
 
 command_array = ["DEVICE PS4\r", # 0
-                "SERIAL ON\r", # 1
-                "HEX ON\r", # 2
+                "SERIAL OFF\r", # 1
+                "HEX OFF\r", # 2
                 "BAUD 155200\r", # 3
                 "I2C 41\r", # 4
                 "RGB 2155A2\r", # 5
@@ -132,7 +132,7 @@ def read_serial_comm():
     setup_serial_comm()
     connect_ds4()
     received_message = config.serial_comm.readline()
-    while len(received_message) < 18:
+    while len(received_message) < 19:
         received_message += config.serial_comm.readline()
     print(received_message)
 

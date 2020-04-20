@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import time
 import smbus
 
 i2c_ch = 1
@@ -48,3 +48,65 @@ dic_ds4_properies = {
     'Touchpad Y': [12, -1],
     'Battery Level': [13, -1]
     }
+
+def get_joystick_left_X():
+    val = bus.read_byte_data(0, 1)
+    print('Left Joystick X: ', val)
+    return val
+def get_joystick_left_Y():
+    val = bus.read_byte_data(1, 1)
+    print('Left Joystick Y: ', val)
+    return val
+def get_joystick_right_X():
+    val = bus.read_byte_data(2, 1)
+    print('Right Joystick X: ', val)
+    return val
+def get_joystick_right_Y():
+    val = bus.read_byte_data(3, 1)
+    print('Right Joystick Y: ', val)
+    return val
+def get_accelerometer_X():
+    val = bus.read_byte_data(4, 1)
+    print('Accelerometer X: ', val)
+    return val
+def get_accelerometer_Y():
+    val = bus.read_byte_data(5, 1)
+    print('Accelerometer Y: ', val)
+    return val
+def get_L2():
+    val = bus.read_byte_data(6, 1)
+    print('L2: ', val)
+    return val
+def get_R2():
+    val = bus.read_byte_data(7, 1)
+    print('R2: ', val)
+    return val
+def get_touchpad_X():
+    val = bus.read_byte_data(11, 1)
+    print('Touchpad X: ', val)
+    return val
+def get_touchpad_Y():
+    val = bus.read_byte_data(12, 1)
+    print('Touchpad Y: ', val)
+    return val
+def get_battery_level():
+    val = bus.read_byte_data(13, 1)
+    print('Battery Level: ', val)
+    return val
+
+def get_all_input():
+    get_joystick_left_X()
+    get_joystick_left_Y()
+    get_joystick_right_X()
+    get_joystick_right_Y()
+    get_accelerometer_X()
+    get_accelerometer_Y()
+    get_L2()
+    get_R2()
+    get_touchpad_X()
+    get_touchpad_Y()
+    get_battery_level()
+    time.sleep(0.1)
+
+get_all_input()
+    
