@@ -73,9 +73,10 @@ def check_ds4_connection_status():
     return False
 
 def connect_ds4():
-    config.ds4_connected = check_ds4_connection_status()
-
     if not config.ds4_connected:
+        config.ds4_connected = check_ds4_connection_status()
+        if config.ds4_connected:
+            return True
         command_received = False
         while not command_received:
             command_received = send_command(0)
