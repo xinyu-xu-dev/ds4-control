@@ -2,11 +2,7 @@
 
 import time
 import serial
-
-serial_comm_setted = False
-serial_comm_openned = False
-serial_comm = serial.Serial()
-ds4_connected = False
+import ds4_uart_config as config
 
 command_array = ["DEVICE PS4\r", # 0
                 "SERIAL ON\r", # 1
@@ -19,15 +15,15 @@ command_array = ["DEVICE PS4\r", # 0
 ignore_command_id_array = [3, 6]
 
 def reopen_serial_comm():
-    if serial_comm.isOpen:
-        serial_comm.close()
-    serial_comm.open()
+    if config.serial_comm.isOpen:
+        config.serial_comm.close()
+    config.serial_comm.open()
     return True
 
 def setup_serial_comm():
-    if (not serial_comm_setted):
-        serial_comm.close()
-        serial_comm(
+    if (not config.serial_comm_setted):
+        config.serial_comm.close()
+        config.serial_comm(
             port = '/dev/ttyAMA0',
             baudrate = 115200,
             parity = serial.PARITY_NONE,
@@ -35,7 +31,7 @@ def setup_serial_comm():
             bytesize = serial.EIGHTBITS,
             timeout = 1
         )
-        serial_comm_setted = True
+        config.serial_comm_setted = True
         reopen_serial_comm()
     return True
 
@@ -45,12 +41,12 @@ def send_command(id):
         return True
     else:
         elapsed_time = 0
-        sent_byte_num = serial_comm.write(command_array[id].encode())
+        sent_byte_num = config.serial_comm.write(command_array[id].encode())
         command_sent_time = time.time()
         print(command_array[id])
         print("Sent {0} bytes".format(sent_byte_num))
         while (elapsed_time < 3):
-            received_message = serial_comm.readline().decode('utf-8')
+            received_message = config.serial_comm.readline().decode('utf-8')
             elapsed_time = time.time() - command_sent_time
             if (received_message.find('Changed') >= 0):
                 print('Command Acknowledged')
@@ -66,20 +62,20 @@ def check_ds4_connection_status():
     start_time = time.time()
     elapsed_time = 0
     while (elapsed_time < 3):
-        received_message = serial_comm.readline()
+        received_message = config.serial_comm.readline()
         if (len(received_message) >= 3):
             if (chr(received_message[0]) == 'P') and (chr(received_message[1]) == 'S') and (chr(received_message[2]) == '4'):
                 print('Found DS4')
-                ds4_connected = True
+                config.ds4_connected = True
                 return True
         elapsed_time = time.time() - start_time
     print('No DS4 Found')
     return False
 
 def connect_ds4():
-    ds4_connected = check_ds4_connection_status()
+    config.ds4_connected = check_ds4_connection_status()
 
-    if not ds4_connected:
+    if not config.ds4_connected:
         command_received = False
         while not command_received:
             command_received = send_command(0)
@@ -95,11 +91,11 @@ def connect_ds4():
         time.sleep(0.5)
         print('After the blue LED On USB Host flash faster, press and hold the PS4 and Share buttons together on the PS4 controller until the PS4 led starts flashing.')
 
-        while not ds4_connected:
-            received_message = serial_comm.readline().decode('utf-8')
+        while not config.ds4_connected:
+            received_message = config.serial_comm.readline().decode('utf-8')
 
             if (received_message.find('Connected') >= 0):
-                ds4_connected = True
+                config.ds4_connected = True
                 print('Device connected')
     return True
 
@@ -134,9 +130,9 @@ def validate(string):
 def read_serial_comm():
     setup_serial_comm()
     connect_ds4()
-    received_message = serial_comm.readline()
+    received_message = config.serial_comm.readline()
     while len(received_message) < 18:
-        received_message += serial_comm.readline()
+        received_message += config.serial_comm.readline()
     print(received_message)
 
     if validate(received_message):
