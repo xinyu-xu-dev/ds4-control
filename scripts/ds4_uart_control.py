@@ -23,7 +23,7 @@ def reopen_serial_comm():
 def setup_serial_comm():
     if (not config.serial_comm_setted):
         config.serial_comm.close()
-        config.serial_comm(
+        config.serial_comm = serial.Serial(
             port = '/dev/ttyAMA0',
             baudrate = 115200,
             parity = serial.PARITY_NONE,
