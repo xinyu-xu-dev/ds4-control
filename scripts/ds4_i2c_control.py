@@ -10,6 +10,7 @@ bus = smbus.SMBus(i2c_ch)
 def get_joystick_left_X():
     val = bus.read_byte_data(i2c_address, 0)
     print('Left Joystick X: ', val)
+    bus.close()
     return val
 def get_joystick_left_Y():
     val = bus.read_byte_data(i2c_address, 1)

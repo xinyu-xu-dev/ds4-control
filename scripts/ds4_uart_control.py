@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 
+""
+
 import time
 import serial
-import ds4_uart_config as config
+
+serial_comm = serial.Serial()
+serial_comm_inited = False
+ds4_connected = False
 
 command_array = ["DEVICE PS4\r", # 0
                 "SERIAL OFF\r", # 1
@@ -14,16 +19,10 @@ command_array = ["DEVICE PS4\r", # 0
 
 ignore_command_id_array = [3, 6]
 
-def reopen_serial_comm():
-    if config.serial_comm.isOpen:
-        config.serial_comm.close()
-    config.serial_comm.open()
-    return True
-
-def setup_serial_comm():
-    if (not config.serial_comm_setted):
-        config.serial_comm.close()
-        config.serial_comm = serial.Serial(
+def serial_comm_init():
+    global serial_comm, serial_comm_inited
+    if (not serial_comm_inited):
+        serial_comm = serial.Serial(
             port = '/dev/ttyAMA0',
             baudrate = 115200,
             parity = serial.PARITY_NONE,
@@ -31,22 +30,22 @@ def setup_serial_comm():
             bytesize = serial.EIGHTBITS,
             timeout = 1
         )
-        config.serial_comm_setted = True
-        reopen_serial_comm()
-    return True
+        serial_comm_inited = True
+    return
 
 def send_command(id):
+    global serial_comm, command_array, ignore_command_id_array
     if id in ignore_command_id_array:
         print('Command Ignored')
         return True
     else:
         elapsed_time = 0
-        sent_byte_num = config.serial_comm.write(command_array[id].encode())
+        sent_byte_num = serial_comm.write(command_array[id].encode())
         command_sent_time = time.time()
         print(command_array[id])
         print("Sent {0} bytes".format(sent_byte_num))
         while (elapsed_time < 3):
-            received_message = config.serial_comm.readline().decode('utf-8')
+            received_message = serial_comm.readline().decode('utf-8')
             elapsed_time = time.time() - command_sent_time
             if (received_message.find('Changed') >= 0):
                 print('Command Acknowledged')
@@ -57,47 +56,51 @@ def send_command(id):
         print('Timeout. Check power and serial connection.')
         return False
 
-def check_ds4_connection_status():
+def update_ds4_connection_status():
+    global serial_comm, ds4_connected
     print('Looking for DS4...')
     start_time = time.time()
     elapsed_time = 0
     while (elapsed_time < 3):
-        received_message = config.serial_comm.readline()
+        received_message = serial_comm.readline()
         if (len(received_message) >= 3):
-            if (chr(received_message[0]) == 'P') and (chr(received_message[1]) == 'S') and (chr(received_message[2]) == '4'):
-                print('Found DS4')
-                config.ds4_connected = True
-                return True
+            if (chr(received_message[0]) == 'P') \
+                and (chr(received_message[1]) == 'S') \
+                and (chr(received_message[2]) == '4'):
+                    print('Found DS4')
+                    ds4_connected = True
+                    return True
         elapsed_time = time.time() - start_time
     print('No DS4 Found')
     return False
 
 def connect_ds4():
-    if not config.ds4_connected:
-        config.ds4_connected = check_ds4_connection_status()
-        if config.ds4_connected:
+    global serial_comm, ds4_connected
+    if not ds4_connected:
+        update_ds4_connection_status()
+        if ds4_connected:
             return True
-        command_received = False
-        while not command_received:
-            command_received = send_command(0)
+        else:
+            command_received = False
+            while not command_received:
+                command_received = send_command(0)
 
-        send_command_id = 0
-        while (send_command_id < len(command_array)):
-            send_command(send_command_id)
-            send_command_id += 1
+            send_command_id = 0
+            for send_command_id in range(len(command_array)):
+                send_command(send_command_id)
 
-        print('USB Host has been configured successfully.')
-        time.sleep(0.5)
-        print('Please breifly turn on the USB Host switch and then turn it off.')
-        time.sleep(0.5)
-        print('After the blue LED On USB Host flash faster, press and hold the PS4 and Share buttons together on the PS4 controller until the PS4 led starts flashing.')
+            print('USB Host has been configured successfully.')
+            time.sleep(0.5)
+            print('Please breifly turn on the USB Host switch and then turn it off.')
+            time.sleep(0.5)
+            print('After the blue LED On USB Host flash faster, press and hold the PS4 and Share buttons together on the PS4 controller until the PS4 led starts flashing.')
 
-        while not config.ds4_connected:
-            received_message = config.serial_comm.readline().decode('utf-8')
+            while not ds4_connected:
+                received_message = serial_comm.readline().decode('utf-8')
 
-            if (received_message.find('Connected') >= 0):
-                config.ds4_connected = True
-                print('Device connected')
+                if (received_message.find('Connected') >= 0):
+                    ds4_connected = True
+                    print('Device connected')
     return True
 
 def validate(string):
@@ -129,11 +132,12 @@ def validate(string):
         return False
 
 def read_serial_comm():
-    setup_serial_comm()
+    global serial_comm
+    serial_comm_init()
     connect_ds4()
-    received_message = config.serial_comm.readline()
+    received_message = serial_comm.readline()
     while len(received_message) < 19:
-        received_message += config.serial_comm.readline()
+        received_message += serial_comm.readline()
     print(received_message)
 
     if validate(received_message):
@@ -144,79 +148,90 @@ def read_serial_comm():
 def get_joystick_left_X(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Left Joystick X: ',string[3])
-    return string[3]
+        return string[3]
 
 def get_joystick_left_Y(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Left Joystick Y: ', string[4])
-    return string[4]
+        return string[4]
 
 def get_joystick_right_X(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Right Joystick X: ', string[5])
-    return string[5]
+        return string[5]
 
 def get_joystick_right_Y(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Right Joystick Y: ', string[6])
-    return string[6]
+        return string[6]
 
 def get_accelerometer_X(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Accelerometer X: ', string[7])
-    return string[7]
+        return string[7]
 
 def get_accelerometer_Y(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Accelerometer Y: ', string[8])
-    return string[8]
+        return string[8]
 
 def get_L2(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('L2: ', string[9])
-    return string[9]
+        return string[9]
 
 def get_R2(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('R2: ', string[10])
-    return string[10]
+        return string[10]
 
 def get_touchpad_X(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Touchpad X: ', string[14])
-    return string[10]
+        return string[10]
 
 def get_touchpad_Y(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Touchpad Y: ', string[15])
-    return string[10]
+        return string[10]
 
 def get_battery_level(string):
     if string == '':
         print('No Valid Reading')
+        return -1
     else:
         print('Battery Level: ', string[16], '%')
-    return string[10]
+        return string[10]
 
 def get_button_status(string, button_name, byte_index, bit_index):
     b_str = bin(string[byte_index])
