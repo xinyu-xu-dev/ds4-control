@@ -10,8 +10,8 @@ serial_comm_inited = False
 ds4_connected = False
 
 command_array = ["DEVICE PS4\r", # 0
-                "SERIAL OFF\r", # 1
-                "HEX OFF\r", # 2
+                "SERIAL ON\r", # 1
+                "HEX ON\r", # 2
                 "BAUD 155200\r", # 3
                 "I2C 41\r", # 4
                 "RGB 2155A2\r", # 5
@@ -135,8 +135,9 @@ def read_serial_comm():
     global serial_comm
     serial_comm_init()
     connect_ds4()
+    received_message = []
     received_message = serial_comm.readline()
-    while len(received_message) < 19:
+    if len(received_message) < 19:
         received_message += serial_comm.readline()
     print(received_message)
 
@@ -448,6 +449,7 @@ def get_button_right(compas_pad_value):
 
 def get_all_input():
     prev_time = time.time()
+
     while 1:
         received_message = read_serial_comm()
         current_time = time.time()
@@ -488,3 +490,6 @@ def get_all_input():
         get_button_down(compas_pad_value)
         get_button_left(compas_pad_value)
         get_button_right(compas_pad_value)
+
+if __name__ == '__main__':
+    get_all_input()
