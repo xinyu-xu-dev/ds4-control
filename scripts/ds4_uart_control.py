@@ -5,7 +5,14 @@
 import time
 import serial
 
-serial_comm = serial.Serial()
+serial_comm = serial.Serial(
+        port = '/dev/ttyAMA0',
+        baudrate = 115200,
+        parity = serial.PARITY_NONE,
+        stopbits = serial.STOPBITS_ONE,
+        bytesize = serial.EIGHTBITS,
+        timeout = 1
+    )
 ds4_connected = False
 
 command_array = ["DEVICE PS4\r", # 0
@@ -28,7 +35,10 @@ def serial_comm_init():
         bytesize = serial.EIGHTBITS,
         timeout = 1
     )
-    return
+
+    serial_comm.close()
+    serial_comm.open()
+    return True
 
 def send_command(id):
     global serial_comm, command_array, ignore_command_id_array
@@ -130,18 +140,11 @@ def validate(string):
 
 def read_serial_comm():
     global serial_comm
-    serial_comm_init()
-    connect_ds4()
-    received_message = []
     received_message = serial_comm.readline()
-    if len(received_message) < 19:
+    if len(received_message) < 18:
         received_message += serial_comm.readline()
     print(received_message)
-
-    if validate(received_message):
-        return received_message
-    else:
-        return ''
+    return received_message
 
 def get_joystick_left_X(string):
     if string == '':
@@ -449,45 +452,48 @@ def get_all_input():
 
     while 1:
         received_message = read_serial_comm()
-        current_time = time.time()
-        read_update_time = current_time - prev_time
-        prev_time = current_time
-        print("Update time is {:05.02f} ".format(read_update_time))
-        get_joystick_left_X(received_message)
-        get_joystick_left_Y(received_message)
-        get_joystick_right_X(received_message)
-        get_joystick_right_Y(received_message)
-        get_accelerometer_X(received_message)
-        get_accelerometer_Y(received_message)
-        get_L2(received_message)
-        get_R2(received_message)
-        get_touchpad_X(received_message)
-        get_touchpad_Y(received_message)
-        get_battery_level(received_message)
-        get_button_Square(received_message)
-        get_button_Cross(received_message)
-        get_button_Circle(received_message)
-        get_button_Triangle(received_message)
-        get_button_L1(received_message)
-        get_button_R1(received_message)
-        get_button_L2(received_message)
-        get_button_R2(received_message)
-        get_button_Share(received_message)
-        get_button_Options(received_message)
-        get_button_L3(received_message)
-        get_button_R3(received_message)
-        get_button_PS4(received_message)
-        get_button_Touchpad(received_message)
-#        get_button_1(received_message)
-#        get_button_2(received_message)
-#        get_button_3(received_message)
-#        get_button_4(received_message)
-        compas_pad_value = get_button_compas_pad(received_message)
-        get_button_up(compas_pad_value)
-        get_button_down(compas_pad_value)
-        get_button_left(compas_pad_value)
-        get_button_right(compas_pad_value)
-        time.sleep(0.1)
+        if validate(received_message):
+            current_time = time.time()
+            read_update_time = current_time - prev_time
+            prev_time = current_time
+            print("Update time is {:05.02f} ".format(read_update_time))
+            get_joystick_left_X(received_message)
+            get_joystick_left_Y(received_message)
+            get_joystick_right_X(received_message)
+            get_joystick_right_Y(received_message)
+            get_accelerometer_X(received_message)
+            get_accelerometer_Y(received_message)
+            get_L2(received_message)
+            get_R2(received_message)
+            get_touchpad_X(received_message)
+            get_touchpad_Y(received_message)
+            get_battery_level(received_message)
+            get_button_Square(received_message)
+            get_button_Cross(received_message)
+            get_button_Circle(received_message)
+            get_button_Triangle(received_message)
+            get_button_L1(received_message)
+            get_button_R1(received_message)
+            get_button_L2(received_message)
+            get_button_R2(received_message)
+            get_button_Share(received_message)
+            get_button_Options(received_message)
+            get_button_L3(received_message)
+            get_button_R3(received_message)
+            get_button_PS4(received_message)
+            get_button_Touchpad(received_message)
+    #        get_button_1(received_message)
+    #        get_button_2(received_message)
+    #        get_button_3(received_message)
+    #        get_button_4(received_message)
+            compas_pad_value = get_button_compas_pad(received_message)
+            get_button_up(compas_pad_value)
+            get_button_down(compas_pad_value)
+            get_button_left(compas_pad_value)
+            get_button_right(compas_pad_value)
+            time.sleep(0.1)
 
 if __name__ == '__main__':
+    serial_comm_init()
+    connect_ds4()
     get_all_input()
