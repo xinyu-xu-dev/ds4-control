@@ -25,23 +25,7 @@ command_array = ["DEVICE PS4\r", # 0
 
 ignore_command_id_array = [3, 6]
 
-def serial_comm_init():
-    global serial_comm
-    serial_comm = serial.Serial(
-        port = '/dev/ttyAMA0',
-        baudrate = 115200,
-        parity = serial.PARITY_NONE,
-        stopbits = serial.STOPBITS_ONE,
-        bytesize = serial.EIGHTBITS,
-        timeout = 1
-    )
-
-    serial_comm.close()
-    serial_comm.open()
-    return True
-
 def send_command(id):
-    global serial_comm, command_array, ignore_command_id_array
     if id in ignore_command_id_array:
         print('Command Ignored')
         return True
@@ -64,7 +48,7 @@ def send_command(id):
         return False
 
 def update_ds4_connection_status():
-    global serial_comm, ds4_connected
+    global ds4_connected
     print('Looking for DS4...')
     start_time = time.time()
     elapsed_time = 0
@@ -82,7 +66,7 @@ def update_ds4_connection_status():
     return False
 
 def connect_ds4():
-    global serial_comm, ds4_connected
+    global ds4_connected
     if not ds4_connected:
         update_ds4_connection_status()
         if ds4_connected:
@@ -139,7 +123,6 @@ def validate(string):
         return False
 
 def read_serial_comm():
-    global serial_comm
     received_message = serial_comm.readline()
     if len(received_message) < 18:
         received_message += serial_comm.readline()
@@ -147,92 +130,48 @@ def read_serial_comm():
     return received_message
 
 def get_joystick_left_X(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Left Joystick X: ',string[3])
-        return string[3]
+    print('Left Joystick X: ',string[3])
+    return string[3]
 
 def get_joystick_left_Y(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Left Joystick Y: ', string[4])
-        return string[4]
+    print('Left Joystick Y: ', string[4])
+    return string[4]
 
 def get_joystick_right_X(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Right Joystick X: ', string[5])
-        return string[5]
+    print('Right Joystick X: ', string[5])
+    return string[5]
 
 def get_joystick_right_Y(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Right Joystick Y: ', string[6])
-        return string[6]
+    print('Right Joystick Y: ', string[6])
+    return string[6]
 
 def get_accelerometer_X(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Accelerometer X: ', string[7])
-        return string[7]
+    print('Accelerometer X: ', string[7])
+    return string[7]
 
 def get_accelerometer_Y(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Accelerometer Y: ', string[8])
-        return string[8]
+    print('Accelerometer Y: ', string[8])
+    return string[8]
 
 def get_L2(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('L2: ', string[9])
-        return string[9]
+    print('L2: ', string[9])
+    return string[9]
 
 def get_R2(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('R2: ', string[10])
-        return string[10]
+    print('R2: ', string[10])
+    return string[10]
 
 def get_touchpad_X(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Touchpad X: ', string[14])
-        return string[10]
+    print('Touchpad X: ', string[14])
+    return string[10]
 
 def get_touchpad_Y(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Touchpad Y: ', string[15])
-        return string[10]
+    print('Touchpad Y: ', string[15])
+    return string[10]
 
 def get_battery_level(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        print('Battery Level: ', string[16], '%')
-        return string[10]
+    print('Battery Level: ', string[16], '%')
+    return string[10]
 
 def get_button_status(string, button_name, byte_index, bit_index):
     b_str = bin(string[byte_index])
@@ -250,169 +189,92 @@ def get_button_status(string, button_name, byte_index, bit_index):
         return False
 
 def get_button_1(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Button 1', 11, 1)
+    return get_button_status(string, 'Button 1', 11, 1)
 
 def get_button_2(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Button 2', 11, 2)
+    return get_button_status(string, 'Button 2', 11, 2)
 
 def get_button_3(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Button 3', 11, 3)
+    return get_button_status(string, 'Button 3', 11, 3)
 
 def get_button_4(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Button 4', 11, 4)
+    return get_button_status(string, 'Button 4', 11, 4)
 
 def get_button_Square(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Square Button', 11, 5)
+    return get_button_status(string, 'Square Button', 11, 5)
 
 def get_button_Cross(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Cross Button', 11, 6)
+    return get_button_status(string, 'Cross Button', 11, 6)
 
 def get_button_Circle(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Circle Button', 11, 7)
+    return get_button_status(string, 'Circle Button', 11, 7)
 
 def get_button_Triangle(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Triangle Button', 11, 8)
+    return get_button_status(string, 'Triangle Button', 11, 8)
 
 def get_button_L1(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'L1 Button', 12, 1)
+    return get_button_status(string, 'L1 Button', 12, 1)
 
 def get_button_R1(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'R1 Button', 12, 2)
+    return get_button_status(string, 'R1 Button', 12, 2)
 
 def get_button_L2(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'L2 Button', 12, 3)
+    return get_button_status(string, 'L2 Button', 12, 3)
 
 def get_button_R2(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'R2 Button', 12, 4)
+    return get_button_status(string, 'R2 Button', 12, 4)
 
 def get_button_Share(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Share Button', 12, 5)
+    return get_button_status(string, 'Share Button', 12, 5)
 
 def get_button_Options(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Options Button', 12, 6)
+    return get_button_status(string, 'Options Button', 12, 6)
 
 def get_button_L3(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'L3 Button', 12, 7)
+    return get_button_status(string, 'L3 Button', 12, 7)
 
 def get_button_R3(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'R3 Button', 12, 8)
+    return get_button_status(string, 'R3 Button', 12, 8)
 
 def get_button_PS4(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'PS4 Button', 13, 1)
+    return get_button_status(string, 'PS4 Button', 13, 1)
 
 def get_button_Touchpad(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
-    else:
-        return get_button_status(string, 'Touchpad Button', 13, 2)
+    return get_button_status(string, 'Touchpad Button', 13, 2)
 
 def get_button_compas_pad(string):
-    if string == '':
-        print('No Valid Reading')
-        return -1
+    b_str = bin(string[11])
+    len_bstr = len(b_str)
+    if (len_bstr >= 6):
+        sb_str = b_str[len_bstr-4:len_bstr]
     else:
-        b_str = bin(string[11])
-        len_bstr = len(b_str)
-        if (len_bstr >= 6):
-            sb_str = b_str[len_bstr-4:len_bstr]
-        else:
-            sb_str = b_str[2:len_bstr]
+        sb_str = b_str[2:len_bstr]
 
-        i_bstr = int(sb_str,2)
-        lead_str = 'Compas Pad: '
+    i_bstr = int(sb_str,2)
+    lead_str = 'Compas Pad: '
 
-        if i_bstr == 0:
-            print(lead_str + 'N')
-        elif i_bstr == 1:
-            print(lead_str + 'NE')
-        elif i_bstr == 2:
-            print(lead_str +  'E')
-        elif i_bstr == 3:
-            print(lead_str + 'SE')
-        elif i_bstr == 4:
-            print(lead_str + 'S')
-        elif i_bstr == 5:
-            print(lead_str + 'SW')
-        elif i_bstr == 6:
-            print(lead_str + 'W')
-        elif i_bstr == 7:
-            print(lead_str + 'NW')
-        elif i_bstr == 8:
-            print(lead_str + 'No button pressed')
+    if i_bstr == 0:
+        print(lead_str + 'N')
+    elif i_bstr == 1:
+        print(lead_str + 'NE')
+    elif i_bstr == 2:
+        print(lead_str +  'E')
+    elif i_bstr == 3:
+        print(lead_str + 'SE')
+    elif i_bstr == 4:
+        print(lead_str + 'S')
+    elif i_bstr == 5:
+        print(lead_str + 'SW')
+    elif i_bstr == 6:
+        print(lead_str + 'W')
+    elif i_bstr == 7:
+        print(lead_str + 'NW')
+    elif i_bstr == 8:
+        print(lead_str + 'No button pressed')
 
-        return i_bstr
+    return i_bstr
 
-def get_button_up(compas_pad_value):
-    v = compas_pad_value
+def get_button_up(v):
     if (v == 0) or (v == 1) or (v == 7):
         print('Up Button: x')
         return True
@@ -420,8 +282,7 @@ def get_button_up(compas_pad_value):
         print('Up Button:  ')
         return False
 
-def get_button_down(compas_pad_value):
-    v = compas_pad_value
+def get_button_down(v):
     if (v == 3) or (v == 4) or (v == 5):
         print('Down Button: x')
         return True
@@ -429,8 +290,7 @@ def get_button_down(compas_pad_value):
         print('Down Button:  ')
         return False
 
-def get_button_left(compas_pad_value):
-    v = compas_pad_value
+def get_button_left(v):
     if (v == 5) or (v == 6) or (v == 7):
         print('Left Button: x')
         return True
@@ -438,8 +298,7 @@ def get_button_left(compas_pad_value):
         print('Left Button:  ')
         return False
 
-def get_button_right(compas_pad_value):
-    v = compas_pad_value
+def get_button_right(v):
     if (v == 1) or (v == 2) or (v == 3):
         print('Right Button: x')
         return True
@@ -457,6 +316,7 @@ def get_all_input():
             read_update_time = current_time - prev_time
             prev_time = current_time
             print("Update time is {:05.02f} ".format(read_update_time))
+
             get_joystick_left_X(received_message)
             get_joystick_left_Y(received_message)
             get_joystick_right_X(received_message)
@@ -494,6 +354,5 @@ def get_all_input():
             time.sleep(0.1)
 
 if __name__ == '__main__':
-    serial_comm_init()
     connect_ds4()
     get_all_input()
