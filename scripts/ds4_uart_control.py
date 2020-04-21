@@ -6,13 +6,12 @@ import time
 import serial
 
 serial_comm = serial.Serial()
-serial_comm_inited = False
 ds4_connected = False
 
 command_array = ["DEVICE PS4\r", # 0
                 "SERIAL ON\r", # 1
                 "HEX ON\r", # 2
-                "BAUD 155200\r", # 3
+                "BAUD 115200\r", # 3
                 "I2C 41\r", # 4
                 "RGB 2155A2\r", # 5
                 ]
@@ -20,17 +19,15 @@ command_array = ["DEVICE PS4\r", # 0
 ignore_command_id_array = [3, 6]
 
 def serial_comm_init():
-    global serial_comm, serial_comm_inited
-    if (not serial_comm_inited):
-        serial_comm = serial.Serial(
-            port = '/dev/ttyAMA0',
-            baudrate = 115200,
-            parity = serial.PARITY_NONE,
-            stopbits = serial.STOPBITS_ONE,
-            bytesize = serial.EIGHTBITS,
-            timeout = 1
-        )
-        serial_comm_inited = True
+    global serial_comm
+    serial_comm = serial.Serial(
+        port = '/dev/ttyAMA0',
+        baudrate = 115200,
+        parity = serial.PARITY_NONE,
+        stopbits = serial.STOPBITS_ONE,
+        bytesize = serial.EIGHTBITS,
+        timeout = 1
+    )
     return
 
 def send_command(id):
@@ -481,15 +478,16 @@ def get_all_input():
         get_button_R3(received_message)
         get_button_PS4(received_message)
         get_button_Touchpad(received_message)
-#        parser.get_button_1(received_message)
-#        parser.get_button_2(received_message)
-#        parser.get_button_3(received_message)
-#        parser.get_button_4(received_message)
+#        get_button_1(received_message)
+#        get_button_2(received_message)
+#        get_button_3(received_message)
+#        get_button_4(received_message)
         compas_pad_value = get_button_compas_pad(received_message)
         get_button_up(compas_pad_value)
         get_button_down(compas_pad_value)
         get_button_left(compas_pad_value)
         get_button_right(compas_pad_value)
+        time.sleep(0.1)
 
 if __name__ == '__main__':
     get_all_input()
