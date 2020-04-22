@@ -16,8 +16,8 @@ serial_comm = serial.Serial(
 ds4_connected = False
 
 command_array = ["DEVICE PS4\r", # 0
-                "SERIAL ON\r", # 1
-                "HEX ON\r", # 2
+                "SERIAL OFF\r", # 1
+                "HEX OFF\r", # 2
                 "BAUD 115200\r", # 3
                 "I2C 41\r", # 4
                 "RGB 2155A2\r", # 5
@@ -307,52 +307,45 @@ def get_button_right(v):
         return False
 
 def get_all_input():
-    prev_time = time.time()
-
-    while 1:
-        received_message = read_serial_comm()
-        if validate(received_message):
-            current_time = time.time()
-            read_update_time = current_time - prev_time
-            prev_time = current_time
-            print("Update time is {:05.02f} ".format(read_update_time))
-
-            get_joystick_left_X(received_message)
-            get_joystick_left_Y(received_message)
-            get_joystick_right_X(received_message)
-            get_joystick_right_Y(received_message)
-            get_accelerometer_X(received_message)
-            get_accelerometer_Y(received_message)
-            get_L2(received_message)
-            get_R2(received_message)
-            get_touchpad_X(received_message)
-            get_touchpad_Y(received_message)
-            get_battery_level(received_message)
-            get_button_Square(received_message)
-            get_button_Cross(received_message)
-            get_button_Circle(received_message)
-            get_button_Triangle(received_message)
-            get_button_L1(received_message)
-            get_button_R1(received_message)
-            get_button_L2(received_message)
-            get_button_R2(received_message)
-            get_button_Share(received_message)
-            get_button_Options(received_message)
-            get_button_L3(received_message)
-            get_button_R3(received_message)
-            get_button_PS4(received_message)
-            get_button_Touchpad(received_message)
-    #        get_button_1(received_message)
-    #        get_button_2(received_message)
-    #        get_button_3(received_message)
-    #        get_button_4(received_message)
-            compas_pad_value = get_button_compas_pad(received_message)
-            get_button_up(compas_pad_value)
-            get_button_down(compas_pad_value)
-            get_button_left(compas_pad_value)
-            get_button_right(compas_pad_value)
-            time.sleep(0.1)
+    received_message = read_serial_comm()
+    if validate(received_message):
+        get_joystick_left_X(received_message)
+        get_joystick_left_Y(received_message)
+        get_joystick_right_X(received_message)
+        get_joystick_right_Y(received_message)
+        get_accelerometer_X(received_message)
+        get_accelerometer_Y(received_message)
+        get_L2(received_message)
+        get_R2(received_message)
+        get_touchpad_X(received_message)
+        get_touchpad_Y(received_message)
+        get_battery_level(received_message)
+        get_button_Square(received_message)
+        get_button_Cross(received_message)
+        get_button_Circle(received_message)
+        get_button_Triangle(received_message)
+        get_button_L1(received_message)
+        get_button_R1(received_message)
+        get_button_L2(received_message)
+        get_button_R2(received_message)
+        get_button_Share(received_message)
+        get_button_Options(received_message)
+        get_button_L3(received_message)
+        get_button_R3(received_message)
+        get_button_PS4(received_message)
+        get_button_Touchpad(received_message)
+#        get_button_1(received_message)
+#        get_button_2(received_message)
+#        get_button_3(received_message)
+#        get_button_4(received_message)
+        compas_pad_value = get_button_compas_pad(received_message)
+        get_button_up(compas_pad_value)
+        get_button_down(compas_pad_value)
+        get_button_left(compas_pad_value)
+        get_button_right(compas_pad_value)
+    return True
 
 if __name__ == '__main__':
     connect_ds4()
-    get_all_input()
+    while True:
+        get_all_input()

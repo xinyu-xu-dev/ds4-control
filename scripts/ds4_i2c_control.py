@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+
+''
+
 import time
 import smbus
 
@@ -10,7 +13,6 @@ bus = smbus.SMBus(i2c_ch)
 def get_joystick_left_X():
     val = bus.read_byte_data(i2c_address, 0)
     print('Left Joystick X: ', val)
-    bus.close()
     return val
 def get_joystick_left_Y():
     val = bus.read_byte_data(i2c_address, 1)
@@ -53,6 +55,7 @@ def get_battery_level():
     print('Battery Level: ', val)
     return val
 
+
 def get_all_input():
     get_joystick_left_X()
     get_joystick_left_Y()
@@ -65,8 +68,15 @@ def get_all_input():
     get_touchpad_X()
     get_touchpad_Y()
     get_battery_level()
-    time.sleep(0.1)
 
-while 1:
-    get_all_input()
-    
+if __name__ == '__main__':
+    prev_time = time.time()
+    while 1:
+        try:
+            update_time = time.time() - prev_time
+            prev_time = time.time()
+            print('Update time is:', update_time)
+            get_all_input()
+            time.sleep(0.001)
+        except:
+            print('Fail to Read')
